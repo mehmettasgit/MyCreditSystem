@@ -1,6 +1,7 @@
 package com.creditsystem.service;
 
 import com.creditsystem.entity.CreditApplication;
+import com.creditsystem.exception.ResourceNotFoundException;
 import com.creditsystem.repository.CreditApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,13 @@ public class CreditApplicationService {
         return creditApplicationRepository.save(creditApplication);
     }
 
-   public CreditApplication findByNationalId(String nationalId){
-       return creditApplicationRepository.findByNationalId(nationalId)
-               .orElseThrow(()->new RuntimeException("Application for credit is not found!"));
-   }
+    public CreditApplication findByNationalId(String nationalId){
+        return creditApplicationRepository.findByNationalId(nationalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Credit application with National ID " + nationalId + " not found."));
+    }
 
-   private int generateCreditScore(){
+
+    private int generateCreditScore(){
        return (int)(Math.random() * 1000) +1;
    }
 

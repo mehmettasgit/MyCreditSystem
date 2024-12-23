@@ -5,6 +5,8 @@ import com.creditsystem.service.CreditApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/credit")
 public class CreditApplicationController {
@@ -13,7 +15,7 @@ public class CreditApplicationController {
     private CreditApplicationService creditApplicationService;
 
     @PostMapping("/apply")
-    public CreditApplication applyCredit(@RequestBody CreditApplication creditApplication){
+    public CreditApplication applyCredit(@Valid @RequestBody CreditApplication creditApplication){
         return creditApplicationService.createCreditApplication(creditApplication);
     }
 
