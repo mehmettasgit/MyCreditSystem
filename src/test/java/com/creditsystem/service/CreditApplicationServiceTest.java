@@ -1,6 +1,7 @@
 package com.creditsystem.service;
 
 import com.creditsystem.entity.CreditApplication;
+import com.creditsystem.exception.ResourceNotFoundException;
 import com.creditsystem.repository.CreditApplicationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,58 @@ class CreditApplicationServiceTest {
 
 
     @Test
-    void findByNationalId() {
+    void findByNationalId_WhenExists_ShouldReturnCreditApplication() {
+        //Arrange
+        CreditApplication application = new CreditApplication();
+        application.setNationalId("12345678901");
+        application.setMonthlyIncome(5000.0);
+
+        when(creditApplicationRepository.findByNationalId("12345678901"))
+                .thenReturn(java.util.Optional.of(application));
+
+        //Act
+        CreditApplication result = creditApplicationService.findByNationalId("12345678901");
+
+        //Assert
+        assertNotNull(result);
+        assertEquals("12345678901", result.getNationalId());
+        verify(creditApplicationRepository, times(1)).findByNationalId("12345678901");
+
     }
+
+    @Test
+    void findByNationalId_WhenNotExists_ShouldThrowResourceNotFoundException() {
+        // Arrange
+        when(creditApplicationRepository.findByNationalId("12345678901"))
+                .thenReturn(java.util.Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            creditApplicationService.findByNationalId("12345678901");
+        });
+
+        assertEquals("Credit application with National ID 12345678901 not found.", exception.getMessage());
+        verify(creditApplicationRepository, times(1)).findByNationalId("12345678901");
+    }
+
+    @Test
+    void  createCreditApplication_WhenCreditScoreBelow500_ShouldSetRejection(){
+
+        //Arrange
+        CreditApplication application = new CreditApplication();
+        application.setNationalId("12345678901");
+        application.setMonthlyIncome(1000.0);
+
+        when(creditApplicationRepository.save(any(CreditApplication.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        //Act
+        CreditApplication result = creditApplicationService.createCreditApplication(application);
+
+        //Assert
+        assertNotNull(result);
+        assertEquals("Rejection!", result.getCreditResult());
+        assertEquals(0.0, result.getCreditLimit());
+    }
+
 }
+
