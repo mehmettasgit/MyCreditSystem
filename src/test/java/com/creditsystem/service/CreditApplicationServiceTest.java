@@ -85,7 +85,7 @@ class CreditApplicationServiceTest {
     }
 
     @Test
-    void  createCreditApplication_WhenCreditScoreBelow500_ShouldSetRejection(){
+    void createCreditApplication_WhenCreditScoreBelow500_ShouldSetRejection() {
 
         //Arrange
         CreditApplication application = new CreditApplication();
@@ -103,5 +103,38 @@ class CreditApplicationServiceTest {
         assertEquals(0.0, result.getCreditLimit());
     }
 
+    @Test
+    void createCreditApplication_WhenCreditScorels500_ShouldSetAccept() {
+
+        //Arrange
+        CreditApplication application = new CreditApplication();
+        application.setNationalId("12345678901");
+        application.setMonthlyIncome(1000.0);
+
+        when(creditApplicationRepository.save(any(CreditApplication.class)))
+                .thenAnswer(invocation -> {
+                    CreditApplication savedApplication = invocation.getArgument(0);
+                    savedApplication.setCreditScore(500);
+                    return savedApplication;
+                });
+
+        //Act
+        CreditApplication result = creditApplicationService.createCreditApplication(application);
+
+        //Assert
+        assertNotNull(result);
+        assertEquals("Accept!", result.getCreditResult());
+        assertEquals(10000.0, result.getCreditLimit());
+
+    }
+
+    @Test
+    void generateCreditScore_ShouldBeBetween1And1000() {
+        for (int i = 0; i < 100; i++) {
+            int creditScore = creditApplicationService.generateCreditScore();
+            assertTrue(creditScore >= 1 && creditScore <= 1000, "Credit score is out of range:" + creditScore);
+
+        }
+    }
 }
 

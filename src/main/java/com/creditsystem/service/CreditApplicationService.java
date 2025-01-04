@@ -25,7 +25,7 @@ public class CreditApplicationService {
     }
 
 
-    private int generateCreditScore(){
+    public int generateCreditScore(){
        return (int)(Math.random() * 1000) +1;
    }
 
