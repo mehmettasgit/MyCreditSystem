@@ -17,13 +17,13 @@ public class CreditApplicationController {
 
     @Operation(summary = "Apply for Credit", description = "Create a new credit application")
     @PostMapping("/apply")
-    public CreditApplication applyCredit(@Valid @RequestBody CreditApplication creditApplication){
+    public CreditApplication applyCredit(@Valid @RequestBody CreditApplication creditApplication) {
         return creditApplicationService.createCreditApplication(creditApplication);
     }
 
     @Operation(summary = "Search Credit Application", description = "Find a credit application by National ID")
     @GetMapping("/{nationalId}")
-    public CreditApplication applicationSearch(@PathVariable String nationalId){
+    public CreditApplication applicationSearch(@PathVariable String nationalId) {
         return creditApplicationService.findByNationalId(nationalId);
     }
 }

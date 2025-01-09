@@ -22,6 +22,8 @@ public class UserRoleService {
         return userRoleRepository.findById(id).orElseThrow(()-> new RuntimeException("Role nor found"));
     }
 
-   //Findbyrolename should be arranged.
-
+   public UserRole findRoleByName(RoleType roleType){
+        return  userRoleRepository.findByRoleName(roleType)
+                .orElseThrow(()->new RuntimeException("Role not found with name:" + roleType));
+   }
 }
