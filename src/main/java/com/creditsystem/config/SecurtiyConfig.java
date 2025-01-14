@@ -17,6 +17,7 @@ public class SecurtiyConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .antMatchers("/public").permitAll()
+                        .antMatchers("/api/roles/create").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(withDefaults());
