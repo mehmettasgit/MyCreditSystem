@@ -5,6 +5,7 @@ import com.creditsystem.entity.User;
 import com.creditsystem.entity.UserRole;
 import com.creditsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +17,9 @@ public class UserService {
     @Autowired
     private UserRoleService userRoleService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public User createUser(String username, String password, String roleName) {
 
         RoleType parsedRole = RoleType.valueOf(roleName);
@@ -24,7 +28,9 @@ public class UserService {
 
         User user = new User();
         user.setUsername(username);
-        user.setPassword(password);
+
+        String encodedPassword = passwordEncoder.encode(password);
+        user.setPassword(encodedPassword);
         user.setRole(userRole);
 
         return userRepository.save(user);
