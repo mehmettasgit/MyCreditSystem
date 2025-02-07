@@ -30,6 +30,26 @@ public class CreditApplicationService {
         return creditApplicationRepository.findAll();
     }
 
+    public CreditApplication updateCreditApplication(Long applicationId, CreditApplication updatedApplication){
+        CreditApplication existingApplication = creditApplicationRepository.findById(applicationId)
+                .orElseThrow(()-> new RuntimeException("CreditApplication not found with id" + applicationId));
+
+        existingApplication.setMonthlyIncome(updatedApplication.getMonthlyIncome());
+        existingApplication.setFirstName(updatedApplication.getFirstName());
+
+        existingApplication.setCreditScore(generateCreditScore());
+        String newCreditResult = determineCreditResult(existingApplication);
+        existingApplication.setCreditResult(newCreditResult);
+
+        return  creditApplicationRepository.save(existingApplication);
+    }
+
+    public void deleteCreditApplication(Long applicationId){
+        CreditApplication existingApplication = creditApplicationRepository.findById(applicationId)
+                .orElseThrow(()-> new RuntimeException("Credit Application not found with ID: " + applicationId));
+        creditApplicationRepository.delete(existingApplication);
+    }
+
 
     public int generateCreditScore() {
         return (int) (Math.random() * 1000) + 1;

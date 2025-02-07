@@ -34,5 +34,16 @@ public class CreditApplicationController {
         return creditApplicationService.findAll();
     }
 
+    @PutMapping("/{applicationId}")
+    public CreditApplication updateCredit(@PathVariable Long applicationId,
+                                          @RequestBody CreditApplication updateApplication){
+        return creditApplicationService.updateCreditApplication(applicationId, updateApplication);
+    }
+
+    @DeleteMapping("/{applicationId}")
+    public void deleteCredit(@PathVariable Long applicationId){
+        creditApplicationService.deleteCreditApplication(applicationId);
+    }
+
 }
 
