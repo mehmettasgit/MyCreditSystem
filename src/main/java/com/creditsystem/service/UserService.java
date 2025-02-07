@@ -41,3 +41,4 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id" + id));
     }
 }
+

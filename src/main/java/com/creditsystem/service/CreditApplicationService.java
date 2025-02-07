@@ -6,6 +6,8 @@ import com.creditsystem.repository.CreditApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CreditApplicationService {
 
@@ -22,6 +24,10 @@ public class CreditApplicationService {
     public CreditApplication findByNationalId(String nationalId) {
         return creditApplicationRepository.findByNationalId(nationalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Credit application with National ID " + nationalId + " not found."));
+    }
+
+    public List<CreditApplication> findAll(){
+        return creditApplicationRepository.findAll();
     }
 
 
