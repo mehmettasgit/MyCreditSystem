@@ -1,5 +1,6 @@
 package com.creditsystem.entity;
 
+import com.creditsystem.model.CreditResult;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -9,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 
-@Data
+@Data //Lombookun ürettği Equals ve HAshcodelar mevcut.
 @Entity
 @Table(name="credit_applications")
 public class CreditApplication implements Serializable {
@@ -52,8 +53,9 @@ public class CreditApplication implements Serializable {
     @Column(name = "credit_score")
     private Integer creditScore;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "credit_result")
-    private String creditResult;
+    private CreditResult creditResult;
 
     @Column(name = "credit_limit")
     private Double creditLimit;
