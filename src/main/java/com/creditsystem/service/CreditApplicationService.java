@@ -2,6 +2,7 @@ package com.creditsystem.service;
 
 import com.creditsystem.entity.CreditApplication;
 import com.creditsystem.exception.ResourceNotFoundException;
+import com.creditsystem.model.CreditResult;
 import com.creditsystem.repository.CreditApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Slf4j
-@Service
+@Service  // Bsuiness rules
 public class CreditApplicationService {
 
     @Autowired
@@ -20,8 +21,8 @@ public class CreditApplicationService {
         log.info("Creating credit application for National ID: {} ", creditApplication.getNationalId());
 
         creditApplication.setCreditScore(generateCreditScore());
-        String creditResult = determineCreditResult(creditApplication); // Credit result oluşturulur.
-        creditApplication.setCreditResult(creditResult); // Sonuç burada set edilir.
+        CreditResult result = determineCreditResult(creditApplication);
+        creditApplication.setCreditResult(result);       // Sonuç burada set edilir.
 
         CreditApplication savedApp = creditApplicationRepository.save(creditApplication);
         log.info("Credit Application created with ID: {} ", savedApp.getId());
@@ -33,6 +34,7 @@ public class CreditApplicationService {
         log.info("Searching credit application by National ID: {}", nationalId);
         return creditApplicationRepository.findByNationalId(nationalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Credit application with National ID " + nationalId + " not found."));
+        //I create an exception object
     }
 
     public List<CreditApplication> findAll(){
@@ -44,12 +46,13 @@ public class CreditApplicationService {
         log.debug("Updating credit application with ID: {}", applicationId);
         CreditApplication existingApplication = creditApplicationRepository.findById(applicationId)
                 .orElseThrow(()-> new RuntimeException("CreditApplication not found with id" + applicationId));
+        //I create an exception object
 
         existingApplication.setMonthlyIncome(updatedApplication.getMonthlyIncome());
         existingApplication.setFirstName(updatedApplication.getFirstName());
 
         existingApplication.setCreditScore(generateCreditScore());
-        String newCreditResult = determineCreditResult(existingApplication);
+        CreditResult newCreditResult =determineCreditResult(existingApplication);
         existingApplication.setCreditResult(newCreditResult);
 
         CreditApplication saved = creditApplicationRepository.save(existingApplication);
@@ -63,37 +66,36 @@ public class CreditApplicationService {
         log.debug("Deleting credit application with ID: {}", applicationId);
         CreditApplication existingApplication = creditApplicationRepository.findById(applicationId)
                 .orElseThrow(()-> new RuntimeException("Credit Application not found with ID: " + applicationId));
+        //I create an exception object
         creditApplicationRepository.delete(existingApplication);
         log.info("Credit Application deleted with ID: {}", applicationId);
     }
 
 
     public int generateCreditScore() {
-        int score = (int) (Math.random() * 1000) + 1;
+        //static method (nesne oluşturmadan, doğrudan sınıf üzerinden üretir.)
+        int score = (int) (Math.random() * 1000) + 1;  // there is int cast here. Because Math random gives double information.
         log.debug("Generated credit score: {}",score);
         return score;
     }
 
-    private String determineCreditResult(CreditApplication creditApplication) {
+    private CreditResult determineCreditResult(CreditApplication app) {
 
-        int creditScore = creditApplication.getCreditScore();
-        double monthlyIncome = creditApplication.getMonthlyIncome();
-        double creditLimitMultiplier = 4.0;
-        log.debug("Determining credit result for score: {} and monthly income: {}",creditScore,monthlyIncome,creditLimitMultiplier);
+        int    score     = app.getCreditScore();
+        double income    = app.getMonthlyIncome();
+        double multiplier= 4.0;
 
-        if (creditScore < 500) {
-            creditApplication.setCreditLimit(0.0);
-            return "Recejtion!";
-        } else if (creditScore < 1000) {
-            if (monthlyIncome < 500) {
-                creditApplication.setCreditLimit(10000.0);
-            } else {
-                creditApplication.setCreditLimit(20000.0);
-            }
-            return "Accept!";
-        } else {
-            creditApplication.setCreditLimit(monthlyIncome * creditLimitMultiplier);
-            return "Accept!";
+        if (score < 500) {
+            app.setCreditLimit(0.0);
+            return CreditResult.REJECTION;
         }
+
+        if (score < 1000) {
+            app.setCreditLimit(income < 500 ? 10_000.0 : 20_000.0);
+            return CreditResult.ACCEPT;
+        }
+
+        app.setCreditLimit(income * multiplier);
+        return CreditResult.ACCEPT;
     }
 }

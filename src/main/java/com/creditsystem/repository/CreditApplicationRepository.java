@@ -6,7 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
+@Repository  //JPA layer
 public interface CreditApplicationRepository  extends JpaRepository<CreditApplication, Long> {
+    //It inherits the CrudRepository chain.
     Optional<CreditApplication> findByNationalId(String nationalId);
 }
