@@ -6,6 +6,8 @@ import com.creditsystem.model.CreditResult;
 import com.creditsystem.repository.CreditApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,7 @@ public class CreditApplicationService {
 
     @Autowired
     private CreditApplicationRepository creditApplicationRepository;
+
 
     public CreditApplication createCreditApplication(CreditApplication creditApplication) {
         log.info("Creating credit application for National ID: {} ", creditApplication.getNationalId());
@@ -30,6 +33,7 @@ public class CreditApplicationService {
        // return creditApplicationRepository.save(creditApplication);
     }
 
+    @Cacheable(value = "creditApplications", key = "#nationalId")
     public CreditApplication findByNationalId(String nationalId) {
         log.info("Searching credit application by National ID: {}", nationalId);
         return creditApplicationRepository.findByNationalId(nationalId)
@@ -62,6 +66,7 @@ public class CreditApplicationService {
         //return  creditApplicationRepository.save(existingApplication);
     }
 
+    @CacheEvict(value = "creditApplications", key = "#applicationId")
     public void deleteCreditApplication(Long applicationId){
         log.debug("Deleting credit application with ID: {}", applicationId);
         CreditApplication existingApplication = creditApplicationRepository.findById(applicationId)
