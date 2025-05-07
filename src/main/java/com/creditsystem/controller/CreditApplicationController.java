@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-@RestController
+@RestController  //HTTP
 @RequestMapping("/api/credit")
 @Slf4j
 public class CreditApplicationController {
 
+   // createdApplication1 -> Yerel değişken
+
+    //üye değişken
     @Autowired
     private CreditApplicationService creditApplicationService;
 
@@ -44,6 +47,8 @@ public class CreditApplicationController {
         log.info("Tüm kredi başvuruları listeleniyor.");
         List<CreditApplication> applications = creditApplicationService.findAll();
         log.info("Toplam başvuru sayısı: {}", applications.size());
+        applications.forEach(app-> log.info("Başvuru Detayı - ID: {}, TC: {}, Sonuç: {}",
+                app.getId(), app.getNationalId(), app.getCreditResult()));
         return applications;
     }
 
