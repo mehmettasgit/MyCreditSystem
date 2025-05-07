@@ -2,6 +2,7 @@ package com.creditsystem.service;
 
 import com.creditsystem.entity.CreditApplication;
 import com.creditsystem.exception.ResourceNotFoundException;
+import com.creditsystem.model.CreditEvaluator;
 import com.creditsystem.model.CreditResult;
 import com.creditsystem.repository.CreditApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -84,23 +85,28 @@ public class CreditApplicationService {
         return score;
     }
 
-    private CreditResult determineCreditResult(CreditApplication app) {
 
-        int    score     = app.getCreditScore();
-        double income    = app.getMonthlyIncome();
-        double multiplier= 4.0;
+    private final CreditEvaluator evaluator = app -> {
+        int score = app.getCreditScore();
+        double income = app.getMonthlyIncome();
+        double multiplier = 4.0;
 
-        if (score < 500) {
+        if(score < 500 ){
             app.setCreditLimit(0.0);
             return CreditResult.REJECTION;
         }
 
-        if (score < 1000) {
+        if (score<1000){
             app.setCreditLimit(income < 500 ? 10_000.0 : 20_000.0);
             return CreditResult.ACCEPT;
         }
 
         app.setCreditLimit(income * multiplier);
         return CreditResult.ACCEPT;
+    };
+
+
+    private CreditResult determineCreditResult(CreditApplication app) {
+        return evaluator.evaluate(app);
     }
 }
