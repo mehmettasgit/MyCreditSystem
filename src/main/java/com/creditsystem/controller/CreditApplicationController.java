@@ -1,6 +1,7 @@
 package com.creditsystem.controller;
 
 import com.creditsystem.entity.CreditApplication;
+import com.creditsystem.model.CreditResult;
 import com.creditsystem.service.CreditApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 @RestController  //HTTP
 @RequestMapping("/api/credit")
@@ -58,6 +60,27 @@ public class CreditApplicationController {
         });
         return applications;
     }
+
+    @Operation(summary = "List Accepted Credit Applications", description = "Retrieve only accepted credit applications")
+    @GetMapping("/allAccepted")
+    public List<CreditApplication> getAcceptedCreditApplications(){
+        log.info("Sadece kabul edilen kredi başvuruları listeleniyor.");
+        List<CreditApplication> acceptedApplications = creditApplicationService.findAll().stream()
+                .filter(app -> app.getCreditResult() == CreditResult.ACCEPT)
+                .collect(Collectors.toList());
+
+        acceptedApplications.forEach(app -> {
+            StringJoiner joiner = new StringJoiner(" | ");
+            joiner.add("ID: " + app.getId())
+                    .add("TC: " + app.getNationalId())
+                    .add("Sonuç: " + app.getCreditResult())
+                    .add("Limit: " + app.getCreditLimit());
+            log.info("Kabul Edilen Başvuru Özeti: {}", joiner.toString());
+        });
+
+        return acceptedApplications;
+    }
+
 
     @PutMapping("/{applicationId}")
     public CreditApplication updateCredit(@PathVariable Long applicationId,
