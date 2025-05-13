@@ -9,13 +9,14 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.StringJoiner;
 
 @RestController  //HTTP
 @RequestMapping("/api/credit")
 @Slf4j
 public class CreditApplicationController {
 
-   // createdApplication1 -> Yerel değişken
+    // createdApplication1 -> Yerel değişken
 
     //üye değişken
     @Autowired
@@ -28,7 +29,7 @@ public class CreditApplicationController {
 
         CreditApplication createdApplication1 = creditApplicationService.createCreditApplication(creditApplication);
 
-       // return creditApplicationService.createCreditApplication(creditApplication);
+        // return creditApplicationService.createCreditApplication(creditApplication);
         return createdApplication1;
     }
 
@@ -43,28 +44,34 @@ public class CreditApplicationController {
 
     @Operation(summary = "List All Credit Applications", description = "Retrieve all credit applications")
     @GetMapping("/allCredits")
-    public List<CreditApplication> getAllCreditApplications(){
+    public List<CreditApplication> getAllCreditApplications() {
         log.info("Tüm kredi başvuruları listeleniyor.");
         List<CreditApplication> applications = creditApplicationService.findAll();
         log.info("Toplam başvuru sayısı: {}", applications.size());
-        applications.forEach(app-> log.info("Başvuru Detayı - ID: {}, TC: {}, Sonuç: {}",
-                app.getId(), app.getNationalId(), app.getCreditResult()));
+        applications.forEach(app -> {
+            StringJoiner joiner = new StringJoiner("|");
+            joiner.add("ID: " + app.getId())
+                    .add("TC: " + app.getNationalId())
+                    .add("Sonuç: " + app.getCreditResult())
+                    .add("Limit: " + app.getCreditLimit());
+            log.info("Başvuru Özeti: {}", joiner.toString());
+        });
         return applications;
     }
 
     @PutMapping("/{applicationId}")
     public CreditApplication updateCredit(@PathVariable Long applicationId,
-                                          @RequestBody CreditApplication updateApplication){
+                                          @RequestBody CreditApplication updateApplication) {
         log.info("Kredi başvurusu güncelleme isteği alındı. ID: {}, Güncellenecek Değerler: {}",
                 applicationId, updateApplication);
         CreditApplication updatedCreditApp = creditApplicationService.updateCreditApplication(applicationId, updateApplication);
         log.info("Kredi başvurusu başarıyla güncellendi. ID: {}", updatedCreditApp.getId());
         return updatedCreditApp;
-       // return creditApplicationService.updateCreditApplication(applicationId, updateApplication);
+        // return creditApplicationService.updateCreditApplication(applicationId, updateApplication);
     }
 
     @DeleteMapping("/{applicationId}")
-    public void deleteCredit(@PathVariable Long applicationId){
+    public void deleteCredit(@PathVariable Long applicationId) {
         log.info("Kredi başvurusu silme isteği alındı. ID: {}", applicationId);
         creditApplicationService.deleteCreditApplication(applicationId);
         log.info("Kredi başvurusu başarıyla silindi. ID: {}", applicationId);
