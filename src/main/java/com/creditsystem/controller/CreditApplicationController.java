@@ -1,11 +1,14 @@
 package com.creditsystem.controller;
 
 import com.creditsystem.entity.CreditApplication;
+import com.creditsystem.exception.ResourceNotFoundException;
 import com.creditsystem.model.CreditResult;
 import com.creditsystem.service.CreditApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -26,22 +29,33 @@ public class CreditApplicationController {
 
     @Operation(summary = "Apply for Credit", description = "Create a new credit application")
     @PostMapping("/apply")
-    public CreditApplication applyCredit(@Valid @RequestBody CreditApplication creditApplication) {
-        log.info("Kredi başvurusu isteği alındı. Başvuru detayı: {}", creditApplication);
+    public ResponseEntity<?> applyCredit(@Valid @RequestBody CreditApplication creditApplication) {
+     log.info("Kredi başvurusu isteği alındı. Başvuru detayı: {}", creditApplication);
 
-        CreditApplication createdApplication1 = creditApplicationService.createCreditApplication(creditApplication);
+     try {
+         CreditApplication creditApplication1 = creditApplicationService.createCreditApplication(creditApplication);
+         return ResponseEntity.ok(creditApplication1);
 
-        // return creditApplicationService.createCreditApplication(creditApplication);
-        return createdApplication1;
+     }catch (Exception e){
+         log.error("Kredi başvurusunda hata oluştur", e);
+         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Kredi başvurusu başarısız oldu.");
+     }
     }
 
     @Operation(summary = "Search Credit Application", description = "Find a credit application by National ID")
     @GetMapping("/{nationalId}")
-    public CreditApplication applicationSearch(@PathVariable String nationalId) {
-        log.info("National ID ile kredi sorgusu yapılıyor: {}", nationalId);
-        CreditApplication creditApplication = creditApplicationService.findByNationalId(nationalId);
-        log.info("Kredi başvurusu bulundu. ID: {}", creditApplication.getId());
-        return creditApplication;
+    public ResponseEntity<?> applicationSearch(@PathVariable String nationalId) {
+
+        try{
+            CreditApplication app = creditApplicationService.findByNationalId(nationalId);
+            return ResponseEntity.ok(app);
+        }catch (ResourceNotFoundException e){
+            log.warn("Kredi başvurusu bulunmadı. TC: {}", nationalId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }catch (Exception e){
+            log.error("Kredi sorgularken beklenmeyen hata.", e);
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Bir hata oluştu");
+        }
     }
 
     @Operation(summary = "List All Credit Applications", description = "Retrieve all credit applications")
