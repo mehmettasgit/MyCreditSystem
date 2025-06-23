@@ -1,6 +1,7 @@
 package com.creditsystem.service;
 
 import com.creditsystem.entity.CreditApplication;
+import com.creditsystem.exception.DuplicateResourceException;
 import com.creditsystem.exception.ResourceNotFoundException;
 import com.creditsystem.model.CreditEvaluator;
 import com.creditsystem.model.CreditResult;
@@ -22,6 +23,17 @@ public class CreditApplicationService {
 
 
     public CreditApplication createCreditApplication(CreditApplication creditApplication) {
+
+        if (creditApplicationRepository.findByNationalId(creditApplication.getNationalId()).isPresent()) {
+            throw new DuplicateResourceException("National ID already in use: " + creditApplication.getNationalId());
+        }
+        if (creditApplicationRepository.findByPhoneNumber(creditApplication.getPhoneNumber()).isPresent()) {
+            throw new DuplicateResourceException("Phone number already in use: " + creditApplication.getPhoneNumber());
+        }
+        if (creditApplicationRepository.findByEmailAddress(creditApplication.getEmailAddress()).isPresent()) {
+            throw new DuplicateResourceException("Email address already in use: " + creditApplication.getEmailAddress());
+        }
+
         log.info("Creating credit application for National ID: {} ", creditApplication.getNationalId());
 
         creditApplication.setCreditScore(generateCreditScore());

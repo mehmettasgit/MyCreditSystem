@@ -1,6 +1,7 @@
 package com.creditsystem.controller;
 
 import com.creditsystem.entity.CreditApplication;
+import com.creditsystem.exception.DuplicateResourceException;
 import com.creditsystem.exception.ResourceNotFoundException;
 import com.creditsystem.model.CreditResult;
 import com.creditsystem.service.CreditApplicationService;
@@ -30,31 +31,37 @@ public class CreditApplicationController {
     @Operation(summary = "Apply for Credit", description = "Create a new credit application")
     @PostMapping("/apply")
     public ResponseEntity<?> applyCredit(@Valid @RequestBody CreditApplication creditApplication) {
-     log.info("Kredi başvurusu isteği alındı. Başvuru detayı: {}", creditApplication);
+        log.info("Kredi başvurusu isteği alındı. Başvuru detayı: {}", creditApplication);
 
-     try {
-         CreditApplication creditApplication1 = creditApplicationService.createCreditApplication(creditApplication);
-         return ResponseEntity.ok(creditApplication1);
+        try {
+            CreditApplication creditApplication1 = creditApplicationService.createCreditApplication(creditApplication);
+            return ResponseEntity.ok(creditApplication1);
 
-     }catch (Exception e){
-         log.error("Kredi başvurusunda hata oluştur", e);
-         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Kredi başvurusu başarısız oldu.");
-     }
+        } catch (DuplicateResourceException e) {
+            log.warn("Kayıt çakışması: {}", e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+
+        } catch (Exception e) {
+            log.error("Kredi başvurusunda hata oluştur", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Kredi başvurusu başarısız oldu.");
+        }
     }
 
     @Operation(summary = "Search Credit Application", description = "Find a credit application by National ID")
     @GetMapping("/{nationalId}")
     public ResponseEntity<?> applicationSearch(@PathVariable String nationalId) {
 
-        try{
+        try {
             CreditApplication app = creditApplicationService.findByNationalId(nationalId);
             return ResponseEntity.ok(app);
-        }catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             log.warn("Kredi başvurusu bulunmadı. TC: {}", nationalId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Kredi sorgularken beklenmeyen hata.", e);
-            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Bir hata oluştu");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Bir hata oluştu");
         }
     }
 
@@ -77,7 +84,7 @@ public class CreditApplicationController {
 
     @Operation(summary = "List Accepted Credit Applications", description = "Retrieve only accepted credit applications")
     @GetMapping("/allAccepted")
-    public List<CreditApplication> getAcceptedCreditApplications(){
+    public List<CreditApplication> getAcceptedCreditApplications() {
         log.info("Sadece kabul edilen kredi başvuruları listeleniyor.");
         List<CreditApplication> acceptedApplications = creditApplicationService.findAll().stream()
                 .filter(app -> app.getCreditResult() == CreditResult.ACCEPT)

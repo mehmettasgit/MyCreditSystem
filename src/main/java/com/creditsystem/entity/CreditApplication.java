@@ -19,7 +19,7 @@ public class CreditApplication implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "national_id")
+    @Column(name = "national_id", unique = true)
     @NotBlank(message = "National ID cannot be blank")
     @Size(min=11, max = 11, message = "National ID must be 11 characters")
     private String nationalId;
@@ -36,11 +36,11 @@ public class CreditApplication implements Serializable {
     @Min(value = 0, message = "Monthly income must be greater than or equal to 0")
     private Double monthlyIncome;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", unique = true)
     @NotBlank(message = "Phone number cannot be blank")
     private String phoneNumber;
 
-    @Column(name = "email_address")
+    @Column(name = "email_address", unique = true)
     @Email(message = "Invalid email address")
     private String emailAddress;
 
