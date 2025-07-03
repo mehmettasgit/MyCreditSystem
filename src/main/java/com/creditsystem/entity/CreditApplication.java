@@ -1,14 +1,14 @@
 package com.creditsystem.entity;
 
 import com.creditsystem.model.CreditResult;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 
 @Data //Lombookun ürettği Equals ve HAshcodelar mevcut.
 @Entity
@@ -46,6 +46,11 @@ public class CreditApplication implements Serializable {
 
     @Column(name = "address")
     private String address;
+
+    @JsonProperty("birth_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @Column(name="birth_date")
+    private LocalDate birthDate;
 
     @Column(name = "occupation")
     private String occupation;
