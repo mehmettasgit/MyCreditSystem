@@ -22,6 +22,7 @@ public class CreditApplication implements Serializable {
     @Column(name = "national_id", unique = true)
     @NotBlank(message = "National ID cannot be blank")
     @Size(min=11, max = 11, message = "National ID must be 11 characters")
+    @Pattern(regexp = "\\{11}", message = "National ID must contain exactly 11 digits")
     private String nationalId;
 
     @Column(name = "first_name")
@@ -50,6 +51,7 @@ public class CreditApplication implements Serializable {
     @JsonProperty("birth_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(name="birth_date")
+   // @NotBlank(message = "Birthdate cannot be blank")
     private LocalDate birthDate;
 
     @Column(name = "occupation")
