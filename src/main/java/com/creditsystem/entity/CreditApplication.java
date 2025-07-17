@@ -22,7 +22,7 @@ public class CreditApplication implements Serializable {
     @Column(name = "national_id", unique = true)
     @NotBlank(message = "National ID cannot be blank")
     @Size(min=11, max = 11, message = "National ID must be 11 characters")
-    @Pattern(regexp = "\\{11}", message = "National ID must contain exactly 11 digits")
+    @Pattern(regexp = "\\d{11}", message = "National ID must contain exactly 11 digits")
     private String nationalId;
 
     @Column(name = "first_name")
@@ -34,11 +34,12 @@ public class CreditApplication implements Serializable {
     private String surName;
 
     @Column(name = "monthly_income")
-    @Min(value = 0, message = "Monthly income must be greater than or equal to 0")
+    @DecimalMin(value ="0.0", inclusive = true, message = "Income must be ≥ 0 ")
     private Double monthlyIncome;
 
     @Column(name = "phone_number", unique = true)
     @NotBlank(message = "Phone number cannot be blank")
+    @Pattern(regexp="\\d{10,11}", message="Phone must be 10–11 digits")
     private String phoneNumber;
 
     @Column(name = "email_address", unique = true)
