@@ -36,7 +36,7 @@ public class CreditApplicationService {
 
         log.info("Creating credit application for National ID: {} ", creditApplication.getNationalId());
 
-        creditApplication.setCreditScore(generateCreditScore());
+        creditApplication.setCreditScore(generateCreditScore(creditApplication));
         CreditResult result = determineCreditResult(creditApplication);
         creditApplication.setCreditResult(result);       // Sonuç burada set edilir.
 
@@ -68,7 +68,7 @@ public class CreditApplicationService {
         existingApplication.setMonthlyIncome(updatedApplication.getMonthlyIncome());
         existingApplication.setFirstName(updatedApplication.getFirstName());
 
-        existingApplication.setCreditScore(generateCreditScore());
+        existingApplication.setCreditScore(generateCreditScore(updatedApplication));
         CreditResult newCreditResult =determineCreditResult(existingApplication);
         existingApplication.setCreditResult(newCreditResult);
 
@@ -90,10 +90,10 @@ public class CreditApplicationService {
     }
 
 
-    public int generateCreditScore() {
-        //static method (nesne oluşturmadan, doğrudan sınıf üzerinden üretir.)
-        int score = (int) (Math.random() * 1000) + 1;  // there is int cast here. Because Math random gives double information.
-        log.debug("Generated credit score: {}",score);
+    public int generateCreditScore(CreditApplication app) {
+        double income = app.getMonthlyIncome();
+
+        int score = (int) Math.min(1000, (income/ 10000.0) * 1000);
         return score;
     }
 
